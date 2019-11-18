@@ -148,8 +148,9 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   # DATA PREPARATION
   
   # OPEN KEYS
-  keys <- .artms_checkIfFile(keys_file)
-  keys <- .artms_checkRawFileColumnName(keys)
+  # keys <- .artms_checkIfFile(keys_file)
+  # keys <- .artms_checkRawFileColumnName(keys)
+  keys <- .artms_loadAndValidateKeys(keys_file)
   
   # Check SILAC
   if(isSILAC){

@@ -297,8 +297,9 @@ artmsQuantification <- function(yaml_config_file,
     
     x <- data.table(x)
     
-    keys <- .artms_checkIfFile(config$files$keys)
-    keys <- .artms_checkRawFileColumnName(keys)
+    #keys <- .artms_checkIfFile(config$files$keys)
+    #keys <- .artms_checkRawFileColumnName(keys)
+    keys <- .artms_loadAndValidateKeys(config$files$keys)
     
     keys <- data.table(keys)
     
@@ -368,8 +369,9 @@ artmsQuantification <- function(yaml_config_file,
   if (config$msstats$enabled) {
     
     # Load the keys files
-    keys <- .artms_checkIfFile(config$files$keys)
-    keys <- .artms_checkRawFileColumnName(keys)
+    # keys <- .artms_checkIfFile(config$files$keys)
+    # keys <- .artms_checkRawFileColumnName(keys)
+    keys <- .artms_loadAndValidateKeys(config$files$keys)
     keys <- data.table(keys)
 
     # Read in contrast file

@@ -67,8 +67,9 @@ artmsEvidenceToSAINTq    <- function(evidence_file,
     stop("Missed (one or many) required argument(s)
          Please, check the help of this function to find out more")
   
-  keys <- .artms_checkIfFile(keys_file)
-  keys <- .artms_checkRawFileColumnName(keys)
+  # keys <- .artms_checkIfFile(keys_file)
+  # keys <- .artms_checkRawFileColumnName(keys)
+  keys <- .artms_loadAndValidateKeys(keys_file)
   
   if(fractions){
     if(verbose) message("--- VERIFYING THAT THE INFORMATION ABOUT fractions IS AVAILABLE ")

@@ -101,14 +101,14 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   # ---------------------------------------------------------------------------
   # GETTING DATA.FRAMES READY
   
-  if (fractions) {
-    # Check that the keys file is correct
-    keys <- .artms_checkIfFile(keys_file)
-    keys <- .artms_checkRawFileColumnName(keys)
-    if (any(!'FractionKey' %in% colnames(keys))) {
-      stop(' <fractions> was activated but <fractionkey> column not found in the keys file ')
-    }
-  }
+  # if (fractions) {
+  #   # Check that the keys file is correct
+  #   keys <- .artms_checkIfFile(keys_file)
+  #   keys <- .artms_checkRawFileColumnName(keys)
+  #   if (any(!'FractionKey' %in% colnames(keys))) {
+  #     stop(' <fractions> was activated but <fractionkey> column not found in the keys file ')
+  #   }
+  # }
   
   if(verbose){
     message("---------------------------------------------")
@@ -117,8 +117,10 @@ artmsQualityControlEvidenceBasic <- function(evidence_file,
   }
   
   # OPEN KEYS
-  keys <- .artms_checkIfFile(keys_file)
-  keys <- .artms_checkRawFileColumnName(keys)
+  # keys <- .artms_checkIfFile(keys_file)
+  # keys <- .artms_checkRawFileColumnName(keys)
+  
+  keys <- .artms_loadAndValidateKeys(keys_file, fractions)
   
   # Check SILAC
   if(isSILAC){

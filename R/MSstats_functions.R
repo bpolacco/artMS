@@ -245,10 +245,12 @@ artmsMergeEvidenceAndKeys <- function(x,
   }
 
   x <- .artms_checkIfFile(x)
-  keys <- .artms_checkIfFile(keys)
+  #keys <- .artms_checkIfFile(keys)
   
   x <- .artms_checkRawFileColumnName(x)
-  keys <- .artms_checkRawFileColumnName(keys)
+  #keys <- .artms_checkRawFileColumnName(keys)
+  
+  keys <- .artms_loadAndValidateKeys(keys)
   
   # Make sure that the Intensity column is not empty
   if(all(is.na(x$Intensity))){
@@ -388,8 +390,9 @@ artmsSILACtoLong <- function(evidence_file,
   evisilac <- .artms_checkIfFile(evisilac)
   evisilac <- .artms_checkRawFileColumnName(evisilac)
   
-  keys <- .artms_checkIfFile(keysilac)
-  keys <- .artms_checkRawFileColumnName(keys)
+  #keys <- .artms_checkIfFile(keysilac)
+  #keys <- .artms_checkRawFileColumnName(keys)
+  keys <- .artms_loadAndValidateKeys(keysilac)
   
   # Check the labels from the keys file
   hlvalues <- unique(keys$IsotopeLabelType)
@@ -689,11 +692,11 @@ artmsSpectralCounts <- function(evidence_file,
   if(verbose) message(">> EXTRACTING SPECTRAL COUNTS FROM THE EVIDENCE FILE ")
   
   x <- .artms_checkIfFile(evidence_file)
-  keys <- .artms_checkIfFile(keys_file)
+  # keys <- .artms_checkIfFile(keys_file)
   
   x <- .artms_checkRawFileColumnName(x)
-  keys <- .artms_checkRawFileColumnName(keys)
-  
+  # keys <- .artms_checkRawFileColumnName(keys)
+  keys <- .artms_loadAndValidateKeys(keys_file)
   
   x <- artmsMergeEvidenceAndKeys(x, 
                                  keys, 
