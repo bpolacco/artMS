@@ -750,6 +750,38 @@ artmsSpectralCounts <- function(evidence_file,
 .artms_trim <- function (x) {
   gsub("^\\s+|\\s+$", "", x)
 }
+# ------------------------------------------------------------------------------
+# @title Validate a contrast matrix (loaded from file)
+# @description Make sure that column names match conditions. 
+# @param contrast_matrix The R matrix object of old style contrasts
+# @param all_conditions a vector with all the conditions in the keys file
+# @return boolean TRUE indicates matrix is valid, 
+# @author Ben Polacco, Tom Nguyen, David Jimenez-Morales
+# @keywords check, contrast
+.artms_validateContrast <- function(contrast_matrix, all_conditions = NULL){
+  conds = colnames(contrast_matrix)
+  if (!is.null(all_conditions)) {
+    d <- setdiff(conds, all_conditions)
+    if (length(d) > 0) {
+      msg <- paste("These conditions are not found in the dataset:", paste(d, collapse=","))
+      message(msg)
+      return (FALSE)
+    }
+  }
+  #check that sum of each row == 0 and sum(abs(row)) for each row == 2
+  #roundedSum avoids floating point imprecision errors
+  roundedSum = function(x){round(sum(x), digits = 10)}
+  errorRows = which(apply(contrast_matrix,MARGIN=1, FUN=roundedSum)!=0 |
+                      apply(contrast_matrix,MARGIN=1, FUN=function(x){roundedSum(abs(x))}) != 2)
+  if (length(errorRows) > 0){
+    msg <- paste("These contrast rows had bad values (sum must equal zero, sum(abs) must equal 2.0):", paste(names(errorRows), collapse=","))
+    message(msg)
+    return(FALSE)
+  }
+  
+  return(TRUE)
+}
+
 
 # ------------------------------------------------------------------------------
 # @title Generate the contrast matrix required by MSstats from a txt file
@@ -762,22 +794,35 @@ artmsSpectralCounts <- function(evidence_file,
 # @keywords check, contrast
 .artms_writeContrast <- function(contrast_file, 
                                  all_conditions = NULL) {
-    input_contrasts <- readLines(contrast_file, warn = FALSE)
-    #remove empty lines
-    input_contrasts <-
-      input_contrasts[vapply(input_contrasts, nchar, FUN.VALUE = 0) > 0]
-    
-    # check if contrast_file is old-format (i.e the contrast_file is a matrix)
-    headers <- unlist(strsplit(input_contrasts[1], split = "\t"))
-    if (length(headers) > 1) {
-      newinput_contrasts <- c()
-      for (i in 2:length(input_contrasts)) {
-        newinput_contrasts <-
-          c(newinput_contrasts, unlist(strsplit(input_contrasts[i], 
-                                                split = "\t"))[1])
-      }
-      input_contrasts <- newinput_contrasts
+  input_contrasts <- readLines(contrast_file, warn = FALSE)
+  #remove empty lines
+  input_contrasts <-
+    input_contrasts[vapply(input_contrasts, nchar, FUN.VALUE = 0) > 0]
+  
+  # check if contrast_file is old-format (i.e the contrast_file is a matrix)
+  headers <- unlist(strsplit(input_contrasts[1], split = "\t"))
+  if (length(headers) > 1) {
+    # If input file is a valid matrix, use values from the file to allow for loading of
+    # fractionally weighted contrasts (e.g. 1 vs -0.5,-0.5)
+    # Here we use fread to avoid changing column names that read.delim thinks are unacceptable, 
+    # then use as.matrix to get row names from first column
+    contrast_from_file = as.matrix(fread(contrast_file, stringsAsFactors=F), 1)
+    if (.artms_validateContrast(contrast_from_file)){
+      return (contrast_from_file)
     }
+    else{
+      message("Old-style contrast matrix failed validation, attempting to load as new-style list of contrasts")
+    }
+    
+    newinput_contrasts <- c()
+    for (i in 2:length(input_contrasts)) {
+      newinput_contrasts <-
+        c(newinput_contrasts, unlist(strsplit(input_contrasts[i], 
+                                              split = "\t"))[1])
+    }
+    input_contrasts <- newinput_contrasts
+  }
+  
     
     # validate the input
     input_contrasts <- trimws(input_contrasts)
