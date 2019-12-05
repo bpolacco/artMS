@@ -241,7 +241,7 @@ artmsMergeEvidenceAndKeys <- function(x,
                                      verbose = TRUE) {
 
   if(verbose){
-    message(">> MERGING FILES ")
+    message(">> MERGING EVIDENCE WITH KEYS FILES ")
   }
 
   x <- .artms_checkIfFile(x)
@@ -773,14 +773,14 @@ artmsSpectralCounts <- function(evidence_file,
   }
   #check that sum of each row == 0 and sum(abs(row)) for each row == 2
   #roundedSum avoids floating point imprecision errors
-  roundedSum = function(x){round(sum(x), digits = 10)}
-  errorRows = which(apply(contrast_matrix,MARGIN=1, FUN=roundedSum)!=0 |
-                      apply(contrast_matrix,MARGIN=1, FUN=function(x){roundedSum(abs(x))}) != 2)
-  if (length(errorRows) > 0){
-    msg <- paste("These contrast rows had bad values (sum must equal zero, sum(abs) must equal 2.0):", paste(names(errorRows), collapse=","))
-    message(msg)
-    return(FALSE)
-  }
+  # roundedSum = function(x){round(sum(x), digits = 10)}
+  # errorRows = which(apply(contrast_matrix,MARGIN=1, FUN=roundedSum)!=0 |
+  #                     apply(contrast_matrix,MARGIN=1, FUN=function(x){roundedSum(abs(x))}) != 2)
+  # if (length(errorRows) > 0){
+  #   msg <- paste("These contrast rows had bad values (sum must equal zero, sum(abs) must equal 2.0):", paste(names(errorRows), collapse=","))
+  #   message(msg)
+  #   return(FALSE)
+  # }
   
   return(TRUE)
 }
@@ -809,7 +809,7 @@ artmsSpectralCounts <- function(evidence_file,
     # fractionally weighted contrasts (e.g. 1 vs -0.5,-0.5)
     # Here we use fread to avoid changing column names that read.delim thinks are unacceptable, 
     # then use as.matrix to get row names from first column
-    contrast_from_file = as.matrix(fread(contrast_file, stringsAsFactors=F), 1)
+    contrast_from_file = as.matrix(suppressWarnings(fread(contrast_file, stringsAsFactors=F)),1) #fread will warn about the header row with one less item than there are columns in the
     if (.artms_validateContrast(contrast_from_file)){
       return (contrast_from_file)
     }
