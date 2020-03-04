@@ -771,10 +771,10 @@ artmsSpectralCounts <- function(evidence_file,
   #check that sum of each row == 0 and sum(abs(row)) for each row == 2
   #roundedSum avoids floating point imprecision errors
   roundedSum = function(x){round(sum(x), digits = 10)}
-  errorRows = which(apply(contrast_matrix,MARGIN=1, FUN=roundedSum)!=0 |
-                      apply(contrast_matrix,MARGIN=1, FUN=function(x){roundedSum(abs(x))}) != 2)
+  errorRows = which(apply(contrast_matrix,MARGIN=1, FUN=roundedSum)!=0)# |
+                      #apply(contrast_matrix,MARGIN=1, FUN=function(x){roundedSum(abs(x))}) != 2)
   if (length(errorRows) > 0){
-    msg <- paste("These contrast rows had bad values (sum must equal zero, sum(abs) must equal 2.0):", paste(names(errorRows), collapse=","))
+    msg <- paste("These contrast rows had bad values (sum must equal zero):", paste(names(errorRows), collapse=","))
     message(msg)
     return(FALSE)
   }
