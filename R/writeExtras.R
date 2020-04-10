@@ -63,16 +63,17 @@
       LFC = c(lfc_lower, lfc_upper),
       FDR = config$output_extras$plots$FDR
     )
-  if (dim(sign_hits)[1] == 0)
-    stop("--(-) No significant hits detected in this experiment. aborting plots. ")
-  sign_labels <- unique(sign_hits$Label)
-  if(verbose) message( sprintf(
+  if (dim(sign_hits)[1] == 0){
+    message("-- no significant hits detected in this experiment")
+  } else{
+    sign_labels <- unique(sign_hits$Label)
+    if(verbose) message( sprintf(
       "-- Selected hits for plots with LFC between %s and %s at %s FDR:\t%s ",
       lfc_lower,
       lfc_upper,
       config$output_extras$plots$FDR,
       nrow(sign_hits) / length(sign_labels)))
-  
+  }
   ## REPRESENTING RESULTS AS HEATMAP, if enabled
   if (config$output_extras$plots$heatmap) {
     # Heatmap only for > 1 comparison

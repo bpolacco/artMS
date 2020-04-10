@@ -1229,6 +1229,10 @@ artmsVolcanoPlot <- function(mss_results,
   } else{
     stop("The whatPvalue argument is wrong. Valid options: < pvalue > or < adj.pvalue >")
   }
+  if (nrow(mss_results) == 0){
+    message ("Nothing to plot for volcano plot after removing NA values in ", whatPvalue)
+    return(NULL)
+  }
   l <- length(unique(mss_results$Label))
   w_base <- 7
   h_base <- 7
