@@ -142,11 +142,11 @@ artmsChangeColumnName <- function(dataset, oldname, newname) {
     }
     
     x <- artmsLeaveOnlyUniprotEntryID(x, "Proteins")
-    x <- artmsLeaveOnlyUniprotEntryID(x, "Leading.razor.protein")
     
     # Check: if neither old version nor new version of leading razor protein
     # is found... stop it
     if ( "Leading.razor.protein" %in% colnames(x) ) {
+      x <- artmsLeaveOnlyUniprotEntryID(x, "Leading.razor.protein")
       x$Proteins <- NULL
       data_f <- artmsChangeColumnName(x, "Leading.razor.protein", "Proteins")
       if(verbose) message("---- Use <Leading.razor.protein> as Protein ID")

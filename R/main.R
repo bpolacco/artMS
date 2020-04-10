@@ -227,7 +227,7 @@ artmsQuantification <- function(yaml_config_file,
     artmsQualityControlEvidenceBasic(
       evidence_file = config$files$evidence,
       keys_file = config$files$keys,
-      prot_exp = toupper(config$data$filters$modifications),
+      prot_exp = toupper(config$data$filters$modification),
       fractions = config$data$fractions$enabled,
       isSILAC = config$data$silac$enabled)
   }else{
