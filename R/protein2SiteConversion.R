@@ -274,7 +274,9 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
   
   if(verbose) message("--- EXTRACTING PTM POSITIONS FROM THE MODIFIED PEPTIDES 
    (This might take a long time depending on the size of the fasta/evidence file) ")
+  pb <- txtProgressBar(min = 0, max = nrow(unique_peptides_in_data), style=3)
   for (i in seq_len(nrow(unique_peptides_in_data))) {
+    setTxtProgressBar(pb,i)
     entry <- unique_peptides_in_data[i, ]
     peptide_seq <- entry$sequence
     ## cleanup the sequence (removing all modifications) for matching the 
@@ -350,6 +352,7 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
       }
     }
   }
+  close(pb)
   
   # CHECK that the mapping went well
   if(is.null(mod_seqs))
