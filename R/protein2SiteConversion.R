@@ -49,6 +49,7 @@
 #' - `PH`: Protein Phosphorylation
 #' - `AC`: Protein Acetylation
 #' @param verbose (logical) `TRUE` (default) shows function messages
+#' @param keep_all_rows (logical) should unmodified and un-mapped rows be kept in the output
 #' @return (file) Return a new evidence file with the specified Protein id 
 #' column modified by adding the sequence site location(s) + postranslational
 #' modification(s) to the uniprot entry / refseq id.
@@ -69,7 +70,8 @@ artmsProtein2SiteConversion <- function (evidence_file,
                                          output_file,
                                          mod_type,
                                          overwrite_evidence = FALSE,
-                                         verbose = TRUE) {
+                                         verbose = TRUE,
+                                         keep_all_rows = FALSE) {
   
   if(is.null(evidence_file) & 
      is.null(ref_proteome_file) & 
@@ -381,7 +383,7 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
     if(verbose) message("--- ALL SEQUENCES MAPPED ")
   }
   
-  final_data <- merge(maxq_data, mod_site_mapping_agg, by = 'mod_seqs')
+  final_data <- merge(maxq_data, mod_site_mapping_agg, by = 'mod_seqs', all.x=keep_all_rows)
   ref_protein_column <- paste0(column_name, " Ref")
   setnames(
     final_data,
