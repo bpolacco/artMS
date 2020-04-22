@@ -1,3 +1,41 @@
+
+
+.artms_buildDataProcessArgList <- function (dmss, config, normalization =TRUE){
+  # the universal:
+  dataProcess.args <- list(raw = dmss,
+                           fillIncompleteRows = TRUE)
+  # from config -- anything new or unexpected will be passed through
+  dataProcess.args <- modifyList (dataProcess.args, config$msstats)
+  
+  #fix some names that differ between config and msstats expectation:
+  dataProcess.args$featureSubset <- dataProcess.args$feature_subset
+  dataProcess.args$feature_subset <- NULL
+  dataProcess.args$normalization = dataProcess.args$normalization_method
+  dataProcess.args$normalization_method <- NULL
+  
+  if(!normalization){
+    dataProcess.args$normalization = FALSE
+  }else if (!is.null(dataProcess.args$normalization_reference) &
+            dataProcess.args$normalization == 'globalStandards') {
+    # if globalStandards is selected, must have a reference protein(s)
+    normalization_refs = unlist(lapply(
+      strsplit(dataProcess.args$normalization_reference, split = ','),
+      FUN = .artms_trim
+    ))
+    dataProcess.args$nameStandards <- normalization_refs
+  }
+  
+  #remove those that should not be passed on to dataProcess:
+  dataProcess.args$enabled <- NULL
+  dataProcess.args$msstats_input <- NULL
+  dataProcess.args$profilePlots <- NULL
+  dataProcess.args$normalization_reference <- NULL
+  
+  return (dataProcess.args)
+}
+
+
+
 # ------------------------------------------------------------------------------
 # @title Run MSstats
 # @description Run MSstats giving a processed evidence file (MSstats format)
@@ -26,20 +64,12 @@
                               verbose = TRUE) {
   if(verbose) message(">> RUNNING MSstats")
   # plot the data BEFORE normalization
+  
+
+    
   if (grepl('before', config$msstats$profilePlots)) {
     if(verbose) message("-- QC PLOT: before")
-    mssquant <- dataProcess(
-      raw = dmss,
-      normalization = FALSE,
-      #Interference has been depracated, but it was never used anyway
-      # betweenRunInterferenceScore = config$msstats$interference,
-      fillIncompleteRows = TRUE,
-      summaryMethod = config$msstats$summaryMethod,
-      censoredInt = config$msstats$censoredInt,
-      cutoffCensored = config$msstats$cutoffCensored,
-      MBimpute = config$msstats$MBimpute,
-      featureSubset = config$msstats$feature_subset
-    )
+    mssquant <- do.call(dataProcess,.artms_buildDataProcessArgList(dmss, config, normalization=FALSE))
     dataProcessPlots(
       data = mssquant,
       type = "ProfilePlot",
@@ -53,49 +83,17 @@
     )
   }
   
-  # Normalization
-  if (!is.null(config$msstats$normalization_reference) &
-      config$msstats$normalization_method == 'globalStandards') {
-    # if globalStandars is selected, must have a reference protein(s)
-    normalization_refs = unlist(lapply(
-      strsplit(config$msstats$normalization_reference, split = ','),
-      FUN = .artms_trim
-    ))
-    mssquant <- dataProcess(
-      raw = dmss,
-      normalization = config$msstats$normalization_method,
-      nameStandards = normalization_refs,
-      # Interference has been depracated, but it was never used anyway
-      # betweenRunInterferenceScore = config$msstats$interference,
-      fillIncompleteRows = TRUE,
-      summaryMethod = config$msstats$summaryMethod,
-      censoredInt = config$msstats$censoredInt,
-      cutoffCensored = config$msstats$cutoffCensored,
-      MBimpute = config$msstats$MBimpute,
-      featureSubset = config$msstats$feature_subset
+  # Now with normalization as requested in config
+  args <-.artms_buildDataProcessArgList(dmss, config)
+  if(verbose) message(
+    sprintf(
+      '-- Normalization method: %s',
+      args$normalization
     )
-  } else{
-    if(verbose) message(
-      sprintf(
-        '-- Normalization method: %s',
-        config$msstats$normalization_method
-      )
-    )
+  )
   
-    mssquant = dataProcess(
-      raw = dmss,
-      normalization = config$msstats$normalization_method,
-      #Interference has been depracated, but it was never used anyway
-      # betweenRunInterferenceScore = config$msstats$interference,
-      fillIncompleteRows = TRUE,
-      summaryMethod = config$msstats$summaryMethod,
-      censoredInt = config$msstats$censoredInt,
-      cutoffCensored = config$msstats$cutoffCensored,
-      MBimpute = config$msstats$MBimpute,
-      featureSubset = config$msstats$feature_subset
-    )
-  }
-  
+  mssquant <- do.call(dataProcess,args)
+
   # plot the data AFTER normalization
   if (grepl('after', config$msstats$profilePlots)) {
     if(verbose) message("-- QC PLOT: after")
