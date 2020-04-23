@@ -128,7 +128,8 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
                                                 plotIC = TRUE,
                                                 plotSP = TRUE,
                                                 printPDF = TRUE,
-                                                verbose = TRUE){
+                                                verbose = TRUE,
+                                                outputDir = "."){
   
   keysilac = NULL
   
@@ -356,7 +357,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotPSM) {
     if(verbose) message("--- Plot PSM", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC_Plots_PSM.pdf',
+      file.path(outputDir, 'QC_Plots_PSM.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -486,7 +487,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot IONS", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_IONS.pdf',
+      filePath(outputDir, 'QC_Plots_IONS.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -615,7 +616,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot TYPE", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_TYPE.pdf',
+      file.path(outputDir,'QC_Plots_TYPE.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -664,7 +665,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot PEPTIDES", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_PEPTIDES.pdf',
+      filePath(outputDir, 'QC_Plots_PEPTIDES.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -832,7 +833,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot PROTEINS", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_PROTEINS.pdf',
+      filePath(outputDir, 'QC_Plots_PROTEINS.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -961,7 +962,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot Plot Ion Oversampling", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_PepIonOversampling.pdf',
+      filePath(outputDir, 'QC_Plots_PepIonOversampling.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1076,7 +1077,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot Charge State", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_CHARGESTATE.pdf',
+      filePath(outputDir, 'QC_Plots_CHARGESTATE.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1121,7 +1122,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotME) {
     if(verbose) message("--- Plot Mass Error", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC_Plots_MASSERROR.pdf',
+      filePath(outputDir, 'QC_Plots_MASSERROR.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1169,7 +1170,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
     if(verbose) message("--- Plot Mass-over-Charge distribution", appendLF = FALSE)
     
     if(printPDF) pdf(
-      'QC_Plots_MZ.pdf',
+      filePath(outputDir, 'QC_Plots_MZ.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1211,7 +1212,7 @@ artmsQualityControlEvidenceExtended <- function(evidence_file,
   if (plotPEPICV) {
     if(verbose) message("--- Plot Peptide Intensity CV", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC_Plots_PEPINT.pdf',
+      filePath(outputDir, 'QC_Plots_PEPINT.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1309,7 +1310,7 @@ Overall median CV within each bin/condition is shown on the top and number of fe
   if (plotPEPDETECT) {
     if(verbose) message("--- Plot Peptide Detection (using modified.sequence)", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC_Plots_PepDetect.pdf',
+      filePath(outputDir, 'QC_Plots_PepDetect.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1350,7 +1351,7 @@ Overall median CV within each bin/condition is shown on the top and number of fe
   if (plotPROTICV) {
     if(verbose) message("--- Plot Protein Intensity CV", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC_Plots_ProtInt.pdf',
+      filePath(outputDir, 'QC_Plots_ProtInt.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1438,7 +1439,7 @@ Overall median CV within each condition is shown on the top and number of protei
   if (plotPROTDETECT) {
     if(verbose) message("--- Plot Protein Detection", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC_Plots_ProtDetect.pdf',
+      filePath(outputDir, 'QC_Plots_ProtDetect.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
@@ -1529,7 +1530,7 @@ Overall median CV within each condition is shown on the top and number of protei
   if (plotIDoverlap) {
     if(verbose) message("--- Plot ID overlap", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC-ID-Overlap.pdf',
+      filePath(outputDir, 'QC-ID-Overlap.pdf'),
       width = 20, #nsamples * 3
       height = 20,
       onefile = TRUE
@@ -1665,7 +1666,7 @@ Overall median CV within each condition is shown on the top and number of protei
   if (plotIC) {
     if(verbose) message("--- Plot Inter-Correlation")
     if(printPDF) pdf(
-      'QC-IntCorrelation.pdf',
+      filePath(outputDir, 'QC-IntCorrelation.pdf'),
       width = 10, #nsamples * 3
       height = 10,
       onefile = TRUE
@@ -1777,7 +1778,7 @@ Overall median CV within each condition is shown on the top and number of protei
 
     if(verbose) message("--- Plot Sample Preparation", appendLF = FALSE)
     if(printPDF) pdf(
-      'QC-SamplePrep.pdf',
+      filePath(outputDir, 'QC-SamplePrep.pdf'),
       width = 10, #nsamples * 3
       height = 6,
       onefile = TRUE
