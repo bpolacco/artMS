@@ -221,7 +221,12 @@ artmsQuantification <- function(yaml_config_file,
   if (!(is.null(config$data$filters$modification))) {
     config$data$filters$modification <- toupper(config$data$filters$modification)
   }
-  
+
+  # various output files will be made, let's try to put them in the same directory
+  # as the requested output
+  outputDir <- dirname(config$files$output)
+
+    
   # Quality Control
   if (config$qc$basic) {
     artmsQualityControlEvidenceBasic(
@@ -229,7 +234,8 @@ artmsQuantification <- function(yaml_config_file,
       keys_file = config$files$keys,
       prot_exp = toupper(config$data$filters$modifications),
       fractions = config$data$fractions$enabled,
-      isSILAC = config$data$silac$enabled)
+      isSILAC = config$data$silac$enabled,
+      output_name = file.path (outputDir,"qcPlots_evidence"))
   }else{
     if(verbose) message("-- No QC basic selected")
   }
@@ -237,7 +243,8 @@ artmsQuantification <- function(yaml_config_file,
   if (config$qc$extended) {
     artmsQualityControlEvidenceExtended(evidence_file = config$files$evidence,
                                         keys_file = config$files$keys,
-                                        isSILAC = config$data$silac$enabled)
+                                        isSILAC = config$data$silac$enabled,
+                                        output_name = file.path (outputDir,"qcPlots_evidence"))
   }else{
     if(verbose) message("-- No evidence-extended QC selected")
   }
