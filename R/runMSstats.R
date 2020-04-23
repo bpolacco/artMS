@@ -1,6 +1,6 @@
 
 
-.artms_buildDataProcessArgList <- function (dmss, config, normalization =TRUE){
+.artms_buildDataProcessArgList <- function (dmss, config, normalization =TRUE, verbose=FALSE){
   # the universal:
   dataProcess.args <- list(raw = dmss,
                            fillIncompleteRows = TRUE)
@@ -8,11 +8,22 @@
   dataProcess.args <- modifyList (dataProcess.args, config$msstats)
   
   #fix some names that differ between config and msstats expectation:
-  dataProcess.args$featureSubset <- dataProcess.args$feature_subset
-  dataProcess.args$feature_subset <- NULL
-  dataProcess.args$normalization = dataProcess.args$normalization_method
-  dataProcess.args$normalization_method <- NULL
-  
+  pairs <- list(c("featureSubset", "feature_subset"),
+             c("normalization", "normalization_method"))
+  for (pair in pairs){
+    msstatsName <- pair[1]  # the argument name msstats expects, called new below
+    artmsName <- pair[2]    # the argument name artMS has used, called old below
+    if (!is.null(dataProcess.args[[artmsName]])){
+      if (!is.null(dataProcess.args[[msstatsName]])){
+        message ("WARNING: new and old names are set, replacing old with new")
+        message ("    new ", msstatsName, " : ", dataProcess.args[[msstatsName]])
+        message ("    old ", artmsName,   " : ", dataProcess.args[[artmsName]])
+      }
+      dataProcess.args[[msstatsName]] <- dataProcess.args[[artmsName]]
+      dataProcess.args[[artmsName]] <- NULL
+    }
+  }
+
   if(!normalization){
     dataProcess.args$normalization = FALSE
   }else if (!is.null(dataProcess.args$normalization_reference) &
@@ -30,6 +41,11 @@
   dataProcess.args$msstats_input <- NULL
   dataProcess.args$profilePlots <- NULL
   dataProcess.args$normalization_reference <- NULL
+  
+  if (verbose){
+    dataFrames <- sapply (dataProcess.args, is.data.frame)
+    message ("dataProcess args: (", paste(names(dataProcess.args)[!dataFrames], dataProcess.args[!dataFrames], sep=":", collapse="; "), " )")
+  }
   
   return (dataProcess.args)
 }
@@ -69,7 +85,7 @@
     
   if (grepl('before', config$msstats$profilePlots)) {
     if(verbose) message("-- QC PLOT: before")
-    mssquant <- do.call(dataProcess,.artms_buildDataProcessArgList(dmss, config, normalization=FALSE))
+    mssquant <- do.call(dataProcess,.artms_buildDataProcessArgList(dmss, config, normalization=FALSE, verbose=verbose))
     dataProcessPlots(
       data = mssquant,
       type = "ProfilePlot",
@@ -84,7 +100,7 @@
   }
   
   # Now with normalization as requested in config
-  args <-.artms_buildDataProcessArgList(dmss, config)
+  args <-.artms_buildDataProcessArgList(dmss, config, verbose=verbose)
   if(verbose) message(
     sprintf(
       '-- Normalization method: %s',
