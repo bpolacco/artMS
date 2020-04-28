@@ -244,7 +244,7 @@ artmsQuantification <- function(yaml_config_file,
     artmsQualityControlEvidenceExtended(evidence_file = config$files$evidence,
                                         keys_file = config$files$keys,
                                         isSILAC = config$data$silac$enabled,
-                                        output_name = file.path (outputDir,"qcPlots_evidence"))
+                                        outputDir = outputDir)
   }else{
     if(verbose) message("-- No evidence-extended QC selected")
   }
