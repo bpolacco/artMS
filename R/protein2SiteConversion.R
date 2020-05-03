@@ -50,6 +50,9 @@
 #' - `AC`: Protein Acetylation
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @param keep_all_rows (logical) should unmodified and un-mapped rows be kept in the output
+#' @param label_unmod_sites (logical) groups basd on modified as well as unmodified
+#'  (if ever found modified) sites.  Example output (see return) now includes `A34890_ph3_ph5`;
+#'   `A34890_ph3_n5` only if site 5 is ever found phosphorylated
 #' @return (file) Return a new evidence file with the specified Protein id 
 #' column modified by adding the sequence site location(s) + postranslational
 #' modification(s) to the uniprot entry / refseq id.
@@ -71,7 +74,8 @@ artmsProtein2SiteConversion <- function (evidence_file,
                                          mod_type,
                                          overwrite_evidence = FALSE,
                                          verbose = TRUE,
-                                         keep_all_rows = FALSE) {
+                                         keep_all_rows = FALSE,
+                                         label_unmod_sites=TRUE) {
   
   if(is.null(evidence_file) & 
      is.null(ref_proteome_file) & 
@@ -259,6 +263,7 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
   protein_indices <-   data.table(uniprot_ac = keys,
                                   ptm_site = unlist(ptm_sites),
                                   res_index = unlist(indices))
+  setkey(protein_indices, uniprot_ac, res_index) # for fast subsetting by keys below
     
   
   
@@ -271,8 +276,12 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
     
   setnames(unique_peptides_in_data, 'Modified sequence', 'sequence') 
   
+  #these track modifications
   mod_sites <- c()
   mod_seqs <- c()
+  
+  #this tracks all, modified or not, only used by label_unmod_sites == TRUE
+  all_sites <- list()
   
   if(verbose) message("--- EXTRACTING PTM POSITIONS FROM THE MODIFIED PEPTIDES 
    (This might take a long time depending on the size of the fasta/evidence file) ")
@@ -299,7 +308,17 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
         if (length(protein_seq) > 0) {
           ## get the position of the peptide in the protein sequence
           peptide_index_in_protein <- str_locate(protein_seq, peptide_seq_clean)[[1]][1]
-
+          
+          if (label_unmod_sites){
+            #for purposes of counting unmodified in same sequence, build a map of peptide
+            # to all possible sites, and prepare to tag those modified in this peptide
+            all_sites[[peptide_seq]][[uac]]<- protein_indices[.(uac, 
+                                                                peptide_index_in_protein:(peptide_index_in_protein+str_length(peptide_seq_clean)))  #subset using keys
+                                                              ][!is.na(uac)   #remove the NA rows we get by asking for res_index  keys that don't exist
+                                                                ][,is_modified:=FALSE] # initialize to FALSE; will set to TRUE below after locating mods
+          }
+          
+          
           for (m in seq_len(length(mod_sites_in_peptide))) {
             mod_site <- mod_sites_in_peptide[m]
             peptide_seq_before_site <-
@@ -330,6 +349,8 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
                 )
               mod_sites <- c(mod_sites, mod_site_id)
               mod_seqs <- c(mod_seqs, peptide_seq)
+              if(label_unmod_sites)all_sites[[peptide_seq]][[uac]][mod_site_index_in_protein == res_index,
+                                                                   is_modified :=TRUE]
               # message("mod_site_id ", mod_site_id, " peptide_seq ",peptide_seq)
               # stopifnot(length(mod_sites) == length(mod_seqs))
             } else{
@@ -365,7 +386,28 @@ If the proteins are still Uniprot Entry IDs and the file has not been converted 
     stop("Protein IDs from evidence file and sequence database do not match. 
          Are you sure that you are using the right sequence database?")
   
-  mod_site_mapping <- data.table(mod_sites, mod_seqs)
+  if (!label_unmod_sites){
+    mod_site_mapping <- data.table(mod_sites, mod_seqs)
+  }else{
+    # We need to keep unmodified sites in our labeles, but only for those
+    # sites that we ever detect modified.
+    # Example AAAS(ph)LLLSR should match both mod site protID_S4 and protID_nS8
+    # if we ever have protID_S8 in this table
+    
+    #assemble table of all sites from the nested list of lists of data.tables
+    all_sites_table <- rbindlist(lapply(all_sites, function(x)rbindlist(x,idcol="protein")),
+                                 idcol="mod_seqs")
+    #add convenient key columns for mapping to our list of detected modifications
+    all_sites_table[,mod_site_key := sprintf('%s_%s%s', protein, ptm_site, res_index )]
+    #reduce to just those sites we ever find modiifed
+    all_sites_table <- all_sites_table[mod_site_key %in% mod_sites]
+    all_sites_table[,unmod_site_key := sprintf('%s_n%s%s', protein, ptm_site, res_index )]
+    # get the correct label depending on mod state
+    all_sites_table[, mod_site_label := ifelse(is_modified, mod_site_key, unmod_site_key)]
+    
+    mod_site_mapping <- all_sites_table[,.(mod_sites = mod_site_label, mod_seqs = mod_seqs)]
+  }
+  
   mod_site_mapping_agg <- aggregate(mod_sites ~ mod_seqs,
                                     mod_site_mapping,
                                     FUN = function(x) paste(x, collapse = ';'))
