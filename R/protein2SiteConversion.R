@@ -51,8 +51,9 @@
 #' @param verbose (logical) `TRUE` (default) shows function messages
 #' @param keep_all_rows (logical) should unmodified and un-mapped rows be kept in the output
 #' @param label_unmod_sites (logical) groups basd on modified as well as unmodified
-#'  (if ever found modified) sites.  Example output (see return) now includes `A34890_ph3_ph5`;
-#'   `A34890_ph3_n5` only if site 5 is ever found phosphorylated
+#'  (if ever found modified) sites.  Example output (see return) now includes `A34890_S3;A34890_S5` and
+#'   `A34890_S3;A34890_nS5`. The `n` denotes no mod on `S5` and will only be labeled
+#'   as such if site 5 is ever found phosphorylated in the whole dataset.
 #' @return (file) Return a new evidence file with the specified Protein id 
 #' column modified by adding the sequence site location(s) + postranslational
 #' modification(s) to the uniprot entry / refseq id.
