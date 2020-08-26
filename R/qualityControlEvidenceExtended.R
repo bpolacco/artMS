@@ -1544,7 +1544,7 @@ Overall median CV within each condition is shown on the top and number of protei
                                    sampleID = 'bioreplicate',
                                    referenceID = 'sequence')
     ovlSeqM <- ovlSeq$M
-    ovlSeqM[ovlSeqM == 1] <- NA
+    diag(ovlSeqM) <- NA
     # coordinates to move the keys
     lmat = rbind(c(0,3),c(2,1),c(0,4))
     lwid = c(1.5,4)
@@ -1590,7 +1590,7 @@ Overall median CV within each condition is shown on the top and number of protei
                                        sampleID = 'bioreplicate',
                                        referenceID = 'sequence')
       ovlSeqFxM <- ovlSeqFx$M
-      ovlSeqFxM[ovlSeqFxM == 1] <- NA
+      diag (ovlSeqFxM) <- NA
       gplots::heatmap.2(
         ovlSeqFxM * 100,
         col = hmcol,
@@ -1630,7 +1630,7 @@ Overall median CV within each condition is shown on the top and number of protei
                                     sampleID = 'bioreplicate',
                                     referenceID = 'proteins')
     ovlProtM <- ovlProt$M
-    ovlProtM[ovlProtM == 1] <- NA
+    diag(ovlProtM) <- NA
     gplots::heatmap.2(
       ovlProtM * 100,
       col = hmcol,
