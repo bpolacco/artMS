@@ -76,7 +76,7 @@ artmsProtein2SiteConversion <- function (evidence_file,
                                          overwrite_evidence = FALSE,
                                          verbose = TRUE,
                                          keep_all_rows = FALSE,
-                                         label_unmod_sites=TRUE) {
+                                         label_unmod_sites=FALSE) {
   
   if(is.null(evidence_file) & 
      is.null(ref_proteome_file) & 
